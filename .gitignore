@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+
+# Environment
+.env
+
+# ML data
+ml/data/raw/*
+ml/data/processed/*
+
+# Trained models
+ml/models/*
+
+# Node
+node_modules/
+dist/
+build/
+
+# Logs
+logs/*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
