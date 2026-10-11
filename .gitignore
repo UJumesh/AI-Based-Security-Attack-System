@@ -29,4 +29,10 @@ logs/*
 
 # OS
 .DS_Store
+
 Thumbs.db
+# Large dataset archive
+MachineLearningCSV.zip
+
+# Temporary command outputs
+Cmd Outputs/
