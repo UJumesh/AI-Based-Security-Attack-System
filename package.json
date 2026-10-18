@@ -1,0 +1,11 @@
+{
+  "name": "ai-based-security-attack-system",
+  "private": true,
+  "description": "Enterprise AI-Based Security Attack Detection System (AEGIS AI SOC)",
+  "scripts": {
+    "dev": "npm --prefix frontend-ui run dev",
+    "build": "npm --prefix frontend-ui run build",
+    "lint": "npm --prefix frontend-ui run lint",
+    "preview": "npm --prefix frontend-ui run preview"
+  }
+}
