@@ -1,0 +1,453 @@
+{
+  "health": {
+    "status": "healthy",
+    "model_loaded": true,
+    "label_mapping_loaded": true,
+    "database_connected": true,
+    "missing_artifacts": [],
+    "missing_database_settings": [],
+    "expected_features": 70,
+    "known_classes": 15,
+    "class_labels": {
+      "0": "BENIGN",
+      "1": "Bot",
+      "2": "DDoS",
+      "3": "DoS GoldenEye",
+      "4": "DoS Hulk",
+      "5": "DoS Slowhttptest",
+      "6": "DoS slowloris",
+      "7": "FTP-Patator",
+      "8": "Heartbleed",
+      "9": "Infiltration",
+      "10": "PortScan",
+      "11": "SSH-Patator",
+      "12": "Web Attack \u2013 Brute Force",
+      "13": "Web Attack \u2013 Sql Injection",
+      "14": "Web Attack \u2013 XSS"
+    },
+    "api_version": "1.4.0"
+  },
+  "history": {
+    "count": 20,
+    "total": 54,
+    "total_pages": 3,
+    "page": 1,
+    "limit": 20,
+    "summary": {
+      "total": 54,
+      "benign": 45,
+      "attacks": 9
+    }
+  },
+  "evaluation": {
+    "source": "CIC-IDS2017",
+    "test_records": 504160,
+    "correct_predictions": 502736,
+    "accuracy_percent": 99.71754998413202,
+    "macro_f1": 0.8301623420352039,
+    "class_count": 15,
+    "class_names": [
+      "BENIGN",
+      "Bot",
+      "DDoS",
+      "DoS GoldenEye",
+      "DoS Hulk",
+      "DoS Slowhttptest",
+      "DoS slowloris",
+      "FTP-Patator",
+      "Heartbleed",
+      "Infiltration",
+      "PortScan",
+      "SSH-Patator",
+      "Web Attack \u2013 Brute Force",
+      "Web Attack \u2013 Sql Injection",
+      "Web Attack \u2013 XSS"
+    ],
+    "classification_report": {
+      "BENIGN": {
+        "precision": 0.9998923086863813,
+        "recall": 0.9971456664725593,
+        "f1-score": 0.9985170987712592,
+        "support": 419012
+      },
+      "Bot": {
+        "precision": 0.4849246231155779,
+        "recall": 0.9897435897435898,
+        "f1-score": 0.6509274873524452,
+        "support": 390
+      },
+      "DDoS": {
+        "precision": 0.9977001637171591,
+        "recall": 0.9996875366168028,
+        "f1-score": 0.9986928614628247,
+        "support": 25603
+      },
+      "DoS GoldenEye": {
+        "precision": 0.9716177861873226,
+        "recall": 0.9985415653864852,
+        "f1-score": 0.9848957084631983,
+        "support": 2057
+      },
+      "DoS Hulk": {
+        "precision": 0.9919572585741369,
+        "recall": 0.9989875321820127,
+        "f1-score": 0.995459982992952,
+        "support": 34569
+      },
+      "DoS Slowhttptest": {
+        "precision": 0.9303571428571429,
+        "recall": 0.9961759082217974,
+        "f1-score": 0.9621421975992613,
+        "support": 1046
+      },
+      "DoS slowloris": {
+        "precision": 0.9888785912882299,
+        "recall": 0.9907149489322191,
+        "f1-score": 0.9897959183673469,
+        "support": 1077
+      },
+      "FTP-Patator": {
+        "precision": 0.9983150800336984,
+        "recall": 0.9991568296795953,
+        "f1-score": 0.9987357774968395,
+        "support": 1186
+      },
+      "Heartbleed": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 2
+      },
+      "Infiltration": {
+        "precision": 0.875,
+        "recall": 1.0,
+        "f1-score": 0.9333333333333333,
+        "support": 7
+      },
+      "PortScan": {
+        "precision": 0.9888670595939751,
+        "recall": 0.9989525332157231,
+        "f1-score": 0.9938842113923704,
+        "support": 18139
+      },
+      "SSH-Patator": {
+        "precision": 0.9847094801223242,
+        "recall": 1.0,
+        "f1-score": 0.9922958397534669,
+        "support": 644
+      },
+      "Web Attack \u2013 Brute Force": {
+        "precision": 0.5827338129496403,
+        "recall": 0.826530612244898,
+        "f1-score": 0.6835443037974683,
+        "support": 294
+      },
+      "Web Attack \u2013 Sql Injection": {
+        "precision": 0.3333333333333333,
+        "recall": 0.25,
+        "f1-score": 0.28571428571428575,
+        "support": 4
+      },
+      "Web Attack \u2013 XSS": {
+        "precision": 0.3203125,
+        "recall": 0.3153846153846154,
+        "f1-score": 0.3178294573643411,
+        "support": 130
+      },
+      "accuracy": 0.9971754998413203,
+      "macro avg": {
+        "precision": 0.8299066093639281,
+        "recall": 0.8574014225386866,
+        "f1-score": 0.8301623420352039,
+        "support": 504160
+      },
+      "weighted avg": {
+        "precision": 0.9977100819134412,
+        "recall": 0.9971754998413203,
+        "f1-score": 0.9973566594960879,
+        "support": 504160
+      }
+    },
+    "confusion_matrix": [
+      [
+        417816,
+        410,
+        57,
+        48,
+        269,
+        73,
+        8,
+        2,
+        0,
+        1,
+        198,
+        10,
+        82,
+        2,
+        36
+      ],
+      [
+        4,
+        386,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        5,
+        0,
+        25595,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        2054,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        17,
+        0,
+        2,
+        11,
+        34534,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1042,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        4,
+        0,
+        0,
+        0,
+        0,
+        4,
+        1067,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1185,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        11,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        18120,
+        0,
+        3,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        644,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        243,
+        0,
+        49
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        1,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        86,
+        0,
+        41
+      ]
+    ]
+  },
+  "replay": {
+    "mode": "offline_flow_replay",
+    "capture_available": false,
+    "replay_available": true,
+    "status": "completed",
+    "processed": 2,
+    "last_ingestion_at": "2026-10-20T19:50:12.890596+00:00",
+    "error": null,
+    "note": "Replay uses bounded rows from X_test.csv, persists source=offline_flow, and never captures packets. Run one backend worker."
+  },
+  "dataset_job": {
+    "job_id": "69c6cae0-c7b9-4c6c-81e9-ce64d93fdff4",
+    "status": "completed",
+    "progress_percent": 100,
+    "processed_records": 504160,
+    "total_records": 504160,
+    "error": null,
+    "result": {
+      "test_records": 504160,
+      "correct_predictions": 502736,
+      "accuracy_percent": 99.71755,
+      "class_count": 15
+    }
+  }
+}

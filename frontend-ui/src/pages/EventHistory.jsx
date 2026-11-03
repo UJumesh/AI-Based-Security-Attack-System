@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { api } from '../services/api';
+import { useState, useEffect } from 'react';
 import { 
   Search, 
   ArrowUpDown, 
@@ -12,11 +13,8 @@ import { TableRowSkeleton } from '../components/Skeleton';
 import { getThreatDetails } from '../data/labelMapping';
 
 export function EventHistory({ 
-  history = [], 
-  isLoading, 
-  onRefresh, 
-  limit, 
-  setLimit,
+  history: recentHistory = [], 
+  onRefresh: refreshParent, 
   addToast 
 }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,62 +22,40 @@ export function EventHistory({
   const [sortField, setSortField] = useState('id'); // id | created_at | confidence_percent
   const [sortAsc, setSortAsc] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [selectedRecord, setSelectedRecord] = useState(null);
 
   const isAttack = (x) => x.is_benign === false || x.is_benign === 'false';
 
-  // Filter & Search
-  const filteredRecords = useMemo(() => {
-    return history.filter((item) => {
-      // Status filter
-      if (statusFilter === 'benign' && isAttack(item)) return false;
-      if (statusFilter === 'attack' && !isAttack(item)) return false;
-
-      // Text search
-      if (searchTerm.trim()) {
-        const query = searchTerm.toLowerCase();
-        const matchesId = String(item.id).toLowerCase().includes(query);
-        const matchesLabel = String(item.prediction || '').toLowerCase().includes(query);
-        const matchesTime = String(item.created_at || '').toLowerCase().includes(query);
-        if (!matchesId && !matchesLabel && !matchesTime) return false;
-      }
-
-      return true;
-    });
-  }, [history, statusFilter, searchTerm]);
-
-  // Sort
-  const sortedRecords = useMemo(() => {
-    return [...filteredRecords].sort((a, b) => {
-      let valA = a[sortField];
-      let valB = b[sortField];
-
-      if (sortField === 'created_at') {
-        valA = new Date(valA || 0).getTime();
-        valB = new Date(valB || 0).getTime();
-      } else if (sortField === 'confidence_percent') {
-        valA = a.confidence_percent ?? a.confidence ?? 0;
-        valB = b.confidence_percent ?? b.confidence ?? 0;
-      } else {
-        valA = Number(valA) || 0;
-        valB = Number(valB) || 0;
-      }
-
-      if (valA < valB) return sortAsc ? -1 : 1;
-      if (valA > valB) return sortAsc ? 1 : -1;
-      return 0;
-    });
-  }, [filteredRecords, sortField, sortAsc]);
-
-  // Pagination
-  const totalPages = Math.ceil(sortedRecords.length / pageSize) || 1;
-  const paginatedRecords = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return sortedRecords.slice(start, start + pageSize);
-  }, [sortedRecords, currentPage, pageSize]);
+  const [history, setHistory] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [revision, setRevision] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const sortedRecords = { length: total };
+  const paginatedRecords = history;
+  function onRefresh() { setRevision(value => value + 1); refreshParent(); }
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(() => {
+      setIsLoading(true);
+      api.getHistory(pageSize, {page: currentPage, search: searchTerm, status: statusFilter,
+        sort: sortField, direction: sortAsc ? 'asc' : 'desc'})
+        .then(data => {
+          if (!active) return;
+          const lastPage = Math.max(1, data.total_pages);
+          if (currentPage > lastPage) { setCurrentPage(lastPage); return; }
+          setHistory(data.history); setTotal(data.total); setError('');
+        })
+        .catch(err => { if (active) { setError(err.message); setHistory([]); } })
+        .finally(() => { if (active) setIsLoading(false); });
+    }, 200);
+    return () => { active = false; clearTimeout(timer); };
+  }, [pageSize, currentPage, searchTerm, statusFilter, sortField, sortAsc, revision, recentHistory]);
 
   function handleSort(field) {
+    setCurrentPage(1);
     if (sortField === field) {
       setSortAsc(!sortAsc);
     } else {
@@ -91,19 +67,15 @@ export function EventHistory({
   // Export CSV
   function handleExportCsv() {
     if (!history.length) return;
-    const headers = ['id', 'prediction', 'prediction_id', 'is_benign', 'confidence_percent', 'features_received', 'created_at'];
-    const rows = history.map((item) => [
-      item.id,
-      `"${item.prediction || ''}"`,
-      item.prediction_id,
-      item.is_benign,
-      item.confidence_percent ?? item.confidence ?? '',
-      item.features_received,
-      `"${item.created_at || ''}"`,
-    ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const headers = ['id', 'prediction', 'prediction_id', 'is_benign', 'confidence_percent', 'features_received', 'created_at', 'source'];
+    const escapeCell = (value) => {
+      let text = String(value ?? '');
+      if (/^[=+@\-\t\r]/.test(text)) text = "'" + text;
+      return '"' + text.replaceAll('"', '""') + '"';
+    };
+    const rows = history.map(item => headers.map(key => escapeCell(item[key])));
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(row => row.join(','))].join('\r\n');
+    const encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent.split('charset=utf-8,')[1]);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
     link.setAttribute('download', `prediction_audit_history_${new Date().toISOString().substring(0, 10)}.csv`);
@@ -114,7 +86,7 @@ export function EventHistory({
     addToast({
       type: 'success',
       title: 'Export Generated',
-      message: `Exported ${history.length} records to CSV.`,
+      message: `Exported ${history.length} loaded page records to CSV.`,
     });
   }
 
@@ -138,7 +110,7 @@ export function EventHistory({
               PostgreSQL Prediction Audit Ledger
             </h3>
             <span style={{ fontSize: '11px', color: '#94A3B8' }}>
-              Querying table <code>prediction_history</code> via endpoint <code>GET /history?limit={limit}</code>
+              Search, sorting and pagination cover all saved predictions. CSV contains the loaded page only.
             </span>
           </div>
 
@@ -146,12 +118,12 @@ export function EventHistory({
             {/* Backend Limit Selector */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <label htmlFor="history-limit" style={{ fontSize: '11px', color: '#64748B' }}>
-                Query Limit:
+                Page size:
               </label>
               <select
                 id="history-limit"
-                value={limit}
-                onChange={(e) => setLimit(Number(e.target.value))}
+                value={pageSize}
+                onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
                 style={{
                   background: '#071020',
                   border: '1px solid rgba(40, 120, 255, 0.2)',
@@ -161,6 +133,8 @@ export function EventHistory({
                   fontSize: '11px',
                 }}
               >
+                <option value={5}>5 Records</option>
+                <option value={10}>10 Records</option>
                 <option value={20}>20 Records</option>
                 <option value={50}>50 Records</option>
                 <option value={100}>100 Records (Max)</option>
@@ -185,7 +159,7 @@ export function EventHistory({
               }}
             >
               <FileSpreadsheet size={13} />
-              <span>Export CSV</span>
+              <span>Export loaded page CSV</span>
             </button>
 
             <button
@@ -262,7 +236,7 @@ export function EventHistory({
                 background: statusFilter === 'all' ? '#2878FF' : 'transparent',
               }}
             >
-              All Records ({history.length})
+              Matching Records ({total})
             </button>
             <button
               onClick={() => {
@@ -300,6 +274,7 @@ export function EventHistory({
         </div>
       </div>
 
+      {error && <p role="alert">{error}</p>}
       {/* Main Table */}
       <div
         style={{
@@ -412,7 +387,7 @@ export function EventHistory({
                             fontWeight: 600,
                           }}
                         >
-                          {item.prediction || 'Unknown'}
+                          {item.prediction || 'Unknown'} ({item.source || 'legacy_unknown'})
                         </span>
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: '12px', fontFamily: 'var(--font-mono)', color: '#94A3B8' }}>
@@ -472,7 +447,7 @@ export function EventHistory({
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '11px', color: '#94A3B8' }}>
             <span>
-              Showing <b>{paginatedRecords.length}</b> of <b>{sortedRecords.length}</b> filtered records ({history.length} total)
+              Showing <b>{paginatedRecords.length}</b> of <b>{sortedRecords.length}</b> filtered records ({history.length} loaded on this page)
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>Per page:</span>

@@ -32,7 +32,7 @@ export function Sidebar({
       id: 'monitoring',
       label: 'Live Monitoring',
       icon: Activity,
-      badge: 'LIVE',
+      badge: 'REPLAY',
       badgeColor: '#10B981',
     },
     {
@@ -58,14 +58,14 @@ export function Sidebar({
       id: 'performance',
       label: 'Model Performance',
       icon: Award,
-      badge: '99.7%',
+      badge: 'REPORT',
       badgeColor: '#06D6E0',
     },
     {
       id: 'explainability',
       label: 'Explainable AI (XAI)',
       icon: Sparkles,
-      badge: 'SHAP',
+      badge: 'GLOBAL',
       badgeColor: '#F59E0B',
     },
     {

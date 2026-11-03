@@ -1,0 +1,58 @@
+Model artifacts unavailable or incompatible
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\Documents\Codex\2026-10-21\files-mentioned-by-the-user-ai\outputs\AI-Based-Security-Attack-System-main\backend\app\main.py", line 184, in <module>
+    raise FileNotFoundError(f"Trained model not found: {MODEL_PATH}")
+FileNotFoundError: Trained model not found: C:\Users\Lenovo\Documents\Codex\2026-10-21\files-mentioned-by-the-user-ai\outputs\AI-Based-Security-Attack-System-main\ml\models\random_forest.pkl
+test_evaluation_missing (test_api.ContractTests.test_evaluation_missing) ... ok
+test_explanation (test_api.ContractTests.test_explanation) ... ok
+test_explanation_model_down (test_api.ContractTests.test_explanation_model_down) ... ok
+test_health_database_down (test_api.ContractTests.test_health_database_down) ... ok
+test_health_healthy (test_api.ContractTests.test_health_healthy) ... ok
+test_health_model_down (test_api.ContractTests.test_health_model_down) ... ok
+test_history_bad_filter (test_api.ContractTests.test_history_bad_filter) ... ok
+test_history_bad_limit (test_api.ContractTests.test_history_bad_limit) ... ok
+test_history_bad_page (test_api.ContractTests.test_history_bad_page) ... ok
+test_history_bad_sort (test_api.ContractTests.test_history_bad_sort) ... ok
+test_history_database_down (test_api.ContractTests.test_history_database_down) ... History database unavailable (RuntimeError)
+ok
+test_history_page_and_counts (test_api.ContractTests.test_history_page_and_counts) ... ok
+test_history_search_parameterized (test_api.ContractTests.test_history_search_parameterized) ... ok
+test_home (test_api.ContractTests.test_home) ... ok
+test_model_info (test_api.ContractTests.test_model_info) ... ok
+test_monitoring_honest (test_api.ContractTests.test_monitoring_honest) ... ok
+test_prediction_boolean (test_api.ContractTests.test_prediction_boolean) ... ok
+test_prediction_database_down (test_api.ContractTests.test_prediction_database_down) ... ok
+test_prediction_extra (test_api.ContractTests.test_prediction_extra) ... ok
+test_prediction_extra_body (test_api.ContractTests.test_prediction_extra_body) ... ok
+test_prediction_missing (test_api.ContractTests.test_prediction_missing) ... ok
+test_prediction_model_down (test_api.ContractTests.test_prediction_model_down) ... ok
+test_prediction_nonfinite (test_api.ContractTests.test_prediction_nonfinite) ... ok
+test_prediction_null (test_api.ContractTests.test_prediction_null) ... ok
+test_prediction_order (test_api.ContractTests.test_prediction_order) ... ok
+test_prediction_saved (test_api.ContractTests.test_prediction_saved) ... ok
+test_prediction_string (test_api.ContractTests.test_prediction_string) ... ok
+test_prediction_unknown_class (test_api.ContractTests.test_prediction_unknown_class) ... Prediction failed
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\Documents\Codex\2026-10-21\files-mentioned-by-the-user-ai\outputs\AI-Based-Security-Attack-System-main\backend\app\main.py", line 462, in predict
+    predicted_label = ID_TO_LABEL[predicted_id]
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 999
+ok
+test_prediction_unknown_source (test_api.ContractTests.test_prediction_unknown_source) ... ok
+test_replay_limit (test_api.ContractTests.test_replay_limit) ... ok
+test_replay_missing (test_api.ContractTests.test_replay_missing) ... ok
+test_replay_stop (test_api.ContractTests.test_replay_stop) ... ok
+test_accuracy_and_support (test_api.EvaluationTests.test_accuracy_and_support) ... ok
+test_duplicate_classes (test_api.EvaluationTests.test_duplicate_classes) ... ok
+test_negative_counts (test_api.EvaluationTests.test_negative_counts) ... ok
+test_per_class_precision (test_api.EvaluationTests.test_per_class_precision) ... ok
+test_wrong_accuracy (test_api.EvaluationTests.test_wrong_accuracy) ... ok
+test_wrong_macro (test_api.EvaluationTests.test_wrong_macro) ... ok
+test_wrong_support (test_api.EvaluationTests.test_wrong_support) ... ok
+test_replay_real_rows_and_source (test_api.ReplayTests.test_replay_real_rows_and_source) ... ok
+test_replay_stopped_before_prediction (test_api.ReplayTests.test_replay_stopped_before_prediction) ... ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 0.396s
+
+OK

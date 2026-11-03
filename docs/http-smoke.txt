@@ -1,0 +1,9 @@
+GET /health: 200; expected 200; PASS
+{"status": "degraded", "model_loaded": false, "label_mapping_loaded": false, "database_connected": false, "missing_artifacts": ["ml/models/random_forest.pkl", "ml/data/processed/label_mapping.json", "ml/data/processed/evaluation_report.json"], "missing_database_settings": ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"], "expected_features": 0, "known_classes": 0, "class_labels": {}, "api_version": "1.4.0"}
+GET /history?page=1&limit=20: 503; expected 503; PASS
+GET /model-info: 503; expected 503; PASS
+GET /explain: 503; expected 503; PASS
+GET /evaluation: 404; expected 404; PASS
+GET /monitoring/status: 200; expected 200; PASS
+POST /predict: 503; expected 503; PASS
+POST /monitoring/start: 503; expected 503; PASS

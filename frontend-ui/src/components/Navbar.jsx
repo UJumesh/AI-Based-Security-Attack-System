@@ -23,7 +23,7 @@ export function Navbar({
       crumb: 'Operations / SOC Dashboard',
     },
     monitoring: {
-      title: 'Live Network Flow Monitoring',
+      title: 'Prediction History and Offline Replay',
       crumb: 'Operations / Ingress Sensor',
     },
     'prediction-lab': {
@@ -44,7 +44,7 @@ export function Navbar({
     },
     explainability: {
       title: 'Explainable AI & Feature Attribution',
-      crumb: 'Interpretability / SHAP Engine',
+      crumb: 'Interpretability / Global Model Importance',
     },
     status: {
       title: 'System & Cluster Infrastructure',

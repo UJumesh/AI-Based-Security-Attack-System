@@ -424,10 +424,9 @@ export function ModelPerformance() {
     };
   }, []);
 
-  const report = evaluation?.classification_report || {};
-
   const metrics = useMemo(() => {
     if (!evaluation) return null;
+    const report = evaluation.classification_report || {};
 
     const labels = Array.isArray(evaluation.class_names)
       ? evaluation.class_names
@@ -483,7 +482,7 @@ export function ModelPerformance() {
         support: Number(weighted.support || testRecords),
       },
     };
-  }, [evaluation, report]);
+  }, [evaluation]);
 
   if (loading) {
     return (
@@ -669,7 +668,7 @@ export function ModelPerformance() {
           {[
             ['Algorithm', 'Random Forest Classifier'],
             ['Evaluation Dataset', 'CIC-IDS2017'],
-            ['Input Features', '70 numerical features'],
+            ['Input Features', 'See model schema in Prediction Lab'],
             ['Target Classes', `${metrics.labels.length} classes`],
             ['Test Records', formatNumber(metrics.testRecords)],
             ['Evaluation Source', 'evaluation_report.json'],

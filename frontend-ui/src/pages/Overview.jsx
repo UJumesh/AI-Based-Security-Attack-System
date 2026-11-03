@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { 
   ShieldCheck, 
   ShieldAlert, 
@@ -23,9 +23,10 @@ import { NetworkTopology } from '../components/NetworkTopology';
 import { Modal } from '../components/Modal';
 import { StatCardSkeleton, TableRowSkeleton } from '../components/Skeleton';
 import { getThreatDetails } from '../data/labelMapping';
-import { api } from '../services/api';
 
 export function Overview({ 
+  summary,
+  healthStatus,
   history = [], 
   isLoading, 
   error, 
@@ -33,39 +34,17 @@ export function Overview({
   setActiveTab 
 }) {
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [evaluation, setEvaluation] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadEvaluation() {
-      try {
-        const data = await api.getEvaluation();
-        if (!cancelled) {
-          setEvaluation(data);
-        }
-      } catch (err) {
-        console.error('Unable to load dataset evaluation.', err);
-      }
-    }
-
-    loadEvaluation();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const total = history.length;
+  const total = summary?.total ?? history.length;
   const isAttack = (x) => x.is_benign === false || x.is_benign === 'false';
   const attackList = history.filter(isAttack);
-  const attacks = attackList.length;
-  const benign = total - attacks;
+  const attacks = summary?.attacks ?? attackList.length;
+  const benign = summary?.benign ?? (total - attacks);
   const attackRate = total > 0 ? ((attacks / total) * 100).toFixed(1) : '0.0';
 
   // Distribution for Donut
   const donutData = [
     { name: 'Benign Flow', value: benign, color: '#10B981' },
-    { name: 'Attacks Detected', value: attacks, color: '#EF4444' },
+    { name: 'Attack-classified predictions', value: attacks, color: '#EF4444' },
   ];
 
   // Class breakdown for Bar Chart
@@ -75,6 +54,7 @@ export function Overview({
     return acc;
   }, {});
 
+  // Class breakdown covers only the loaded recent rows.
   const barData = Object.entries(classCounts).map(([name, count]) => ({
     name: name.replace('Web Attack – ', 'WA: '),
     fullName: name,
@@ -144,38 +124,33 @@ export function Overview({
         ) : (
           <>
             <StatCard
-              title="Dataset Test Records"
-              value={
-                evaluation?.test_records != null
-                  ? Number(evaluation.test_records).toLocaleString('en-IN')
-                  : 'N/A'
-              }
-              subtitle="Records evaluated from CIC-IDS2017 test set"
+              title="Total Saved Predictions"
+              value={summary?.total ?? 'N/A'}
+              subtitle="All saved predictions in PostgreSQL"
               icon={FileCheck2}
               color="#2878FF"
               bg="rgba(40, 120, 255, 0.12)"
             />
             <StatCard
-              title="Detected Attacks"
-              value={attacks}
-              subtitle="Attack predictions saved in recent history"
+              title="Attack-classified Predictions"
+              value={summary ? attacks : 'N/A'}
+              subtitle="Attack predictions saved across all history"
               icon={ShieldAlert}
               color="#EF4444"
               bg="rgba(239, 68, 68, 0.12)"
-              trend={attacks > 0 ? { text: 'Threat Active', isPositive: false } : { text: 'Clear', isPositive: true }}
             />
             <StatCard
               title="Benign Predictions"
-              value={benign}
-              subtitle="Benign predictions saved in recent history"
+              value={summary ? benign : 'N/A'}
+              subtitle="Benign predictions saved across all history"
               icon={ShieldCheck}
               color="#10B981"
               bg="rgba(16, 185, 129, 0.12)"
             />
             <StatCard
               title="Attack Rate"
-              value={Number(attackRate)}
-              suffix="%"
+              value={summary ? Number(attackRate) : 'N/A'}
+              suffix={summary ? "%" : ""}
               subtitle="Attack share of saved prediction history"
               icon={Percent}
               color={Number(attackRate) > 20 ? '#EF4444' : '#06D6E0'}
@@ -187,7 +162,7 @@ export function Overview({
 
       {/* Hero Network Topology */}
       <div>
-        <NetworkTopology height={360} recentAttackCount={attacks} />
+        <NetworkTopology summary={summary} healthStatus={healthStatus} height={360} recentAttackCount={attacks} />
       </div>
 
       {/* Middle Row: Charts */}
@@ -215,7 +190,7 @@ export function Overview({
                 Benign vs. Attack Proportion
               </h3>
               <span style={{ fontSize: '11px', color: '#94A3B8' }}>
-                Classification breakdown from current history pool
+                Classification breakdown across saved database records
               </span>
             </div>
             <span
@@ -323,7 +298,7 @@ export function Overview({
           </div>
         </div>
 
-        {/* Bar Chart: Class Distribution */}
+        {/* Bar Chart: Recent class distribution */}
         <div
           style={{
             background: '#0B1930',
@@ -603,7 +578,7 @@ export function Overview({
               <div>
                 <span style={{ fontSize: '11px', color: '#64748B' }}>Status:</span>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: selectedRecord.is_benign ? '#10B981' : '#EF4444', marginTop: '2px' }}>
-                  {selectedRecord.is_benign ? 'BENIGN TRAFFIC' : 'MALICIOUS ATTACK'}
+                  {selectedRecord.is_benign ? 'BENIGN TRAFFIC' : 'ATTACK-CLASSIFIED'}
                 </div>
               </div>
               <div>

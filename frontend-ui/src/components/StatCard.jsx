@@ -28,7 +28,8 @@ export function StatCard({
       const elapsed = time - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
-      const current = Math.round(start + (end - start) * ease);
+      const raw = start + (end - start) * ease;
+      const current = Number.isInteger(end) ? Math.round(raw) : Number(raw.toFixed(4));
       setAnimatedNumber(current);
 
       if (progress < 1) {

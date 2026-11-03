@@ -248,8 +248,7 @@ export function DatasetSummary() {
                 >
                     <strong>Evaluation unavailable:</strong> {error}
                     <p style={{ marginBottom: 0 }}>
-                        Confirm that the FastAPI backend is running and GET /evaluation
-                        returns the saved evaluation report.
+                        This source archive did not include ML artifacts. Restore the original evaluation report and matching model/test files. Refresh after restoring them.
                     </p>
                 </div>
             ) : (

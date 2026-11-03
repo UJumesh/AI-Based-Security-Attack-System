@@ -19,6 +19,7 @@ import { SystemStatus } from './pages/SystemStatus';
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
   const [history, setHistory] = useState([]);
+  const [summary, setSummary] = useState(null);
   const [healthStatus, setHealthStatus] = useState(null);
   const [historyLimit, setHistoryLimit] = useState(20);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState(10000);
@@ -66,7 +67,7 @@ export default function App() {
 
         if (healthData.status === 'degraded') {
           fetchError =
-            'PostgreSQL database is currently disconnected. Stored history is unavailable.';
+            `Setup required: ${!healthData.model_loaded ? 'restore the trained model and label mapping. ' : ''}${!healthData.database_connected ? 'configure PostgreSQL in the project .env and restart the backend. ' : ''}${healthData.missing_artifacts?.length ? 'Missing files: ' + healthData.missing_artifacts.join(', ') : ''}`;
         }
       } catch (err) {
         setHealthStatus({
@@ -89,8 +90,9 @@ export default function App() {
           : histData.history || [];
 
         setHistory(list);
-      } catch {
-        // Preserve the previous history if the request fails.
+        setSummary(histData.summary || null);
+      } catch (err) {
+        fetchError = fetchError || err.message || "History unavailable; cached records may be stale.";
       }
 
       setError(fetchError);
@@ -155,6 +157,8 @@ export default function App() {
               <DatasetSummary />
 
               <Overview
+                healthStatus={healthStatus}
+                summary={summary}
                 history={history}
                 isLoading={isLoading}
                 error={error}
@@ -167,6 +171,7 @@ export default function App() {
           {/* Live Monitoring */}
           {activeTab === 'monitoring' && (
             <LiveMonitoring
+              summary={summary}
               history={history}
               healthStatus={healthStatus}
               isLoading={isLoading}

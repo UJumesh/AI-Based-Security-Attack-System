@@ -1,57 +1,106 @@
-# AI-Based Security Attack System
+# AI-Based Security Attack Detection System
 
-A cybersecurity research project combining **Random Forest network-flow classification**, a **FastAPI backend**, and a **React monitoring dashboard**.
+Existing React/Vite + FastAPI + PostgreSQL + Random Forest college project, repaired in place. This is a local flow-classification demonstration. Predictions are estimated labels, not confirmed attacks, and the application does not block traffic.
 
-## Architecture
+## Working local configuration — recovered
 
-```text
-React dashboard (frontend-ui/src/)
-        | JSON / HTTP
-        v
-FastAPI (backend/app/main.py)
-      /   \
-     v     v
-ML model  PostgreSQL prediction history
+The original artifacts and PostgreSQL configuration were found at `D:\College\3rd Year\5th sam\Desgine P\Desgine Project\AI-Based-Security-Attack-System`. The repaired backend reads them in place; no model/data/credential copies are required. The existing PostgreSQL database is connected and genuine predictions, history, global importance and full offline evaluation have been verified.
+
+From this repaired project folder, run these in separate PowerShell terminals:
+
+```powershell
+.\start-backend.ps1
 ```
 
-## API
-
-| Method | Endpoint | Function |
-| --- | --- | --- |
-| GET | `/` | Service information |
-| GET | `/health` | Database and model readiness |
-| POST | `/predict` | Classify a supplied feature vector |
-| GET | `/history` | Retrieve stored prediction history |
-| GET | `/evaluation` | Model evaluation results |
-| POST | `/dataset-predictions/run` | Queue offline dataset predictions |
-| GET | `/dataset-predictions/status` | Check task status |
-
-FastAPI provides `/docs` automatically.
-
-## Project layout
-- `backend/app/main.py`: FastAPI routes, inference and PostgreSQL access
-- `frontend-ui/`: React/Vite UI and API client
-- `ml/preprocessing/`: dataset scripts
-- `ml/training/`: model training and validation
-- `ml/models/`: model artifact location (ignored in Git)
-- `ml/data/processed/`: processed dataset location (ignored in Git)
-
-## Setup
-Before launching the backend, prepare a trained model at `ml/models/random_forest.pkl`, the expected processed feature files, Python dependencies, and PostgreSQL. The repository does not include a complete pinned Python requirements manifest or the model artifact. Create a local `.env` with `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`.
-
-```bash
-uvicorn backend.app.main:app --reload
+```powershell
+.\start-frontend.ps1
 ```
 
-In a separate terminal, start the frontend:
+Open http://127.0.0.1:5177. Backend: http://127.0.0.1:8017/docs. If the scripts are blocked by your PowerShell policy, use the equivalent commands below rather than weakening system policy:
 
-```bash
+```powershell
+$env:SECURITY_ARTIFACT_ROOT='D:\College\3rd Year\5th sam\Desgine P\Desgine Project\AI-Based-Security-Attack-System'
+$env:SECURITY_ENV_FILE=Join-Path $env:SECURITY_ARTIFACT_ROOT '.env'
+$env:CORS_ORIGINS='http://127.0.0.1:5177'
+python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8017
+```
+
+Frontend terminal: `cd frontend-ui`, set `$env:VITE_API_BASE_URL='http://127.0.0.1:8017'`, then `npm run dev -- --host 127.0.0.1 --port 5177 --strictPort`.
+
+`SECURITY_ARTIFACT_ROOT` selects the original project root, while `SECURITY_ENV_FILE` selects its local environment file. Defaults still support self-contained artifact restoration into the repaired project. Never commit or package the original .env. Read docs/FINAL_REPORT.md for current verified status.
+
+## Portable setup / source archive limitations
+
+**The supplied ZIP contains source only.** It has no trained model, CSV datasets, label mapping, evaluation report, .env or virtual environment. Startup remains possible in degraded mode; genuine predictions and evaluation need the original artifacts. Do not manufacture a model or reuse the old hardcoded UI scores.
+
+## Restore the original artifacts
+
+Copy the matching trusted artifacts into these project-relative locations:
+
+- ml/models/random_forest.pkl
+- ml/data/processed/label_mapping.json (label to numeric ID)
+- ml/data/processed/evaluation_report.json
+- ml/data/processed/split/X_test.csv and y_test.csv (Label column)
+- ml/data/processed/split/X_train.csv if the model has no feature_names_in_
+
+Preserve exact feature spelling/order and the original training library versions. Joblib model files can execute code: load only the original trusted model. requirements.txt records this machine's tested environment, not the unknown model's training environment. Prefer the original virtual environment if available. Restart the backend after restoring artifacts.
+
+## Local setup on Windows PowerShell
+
+From this project folder:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+Edit the local .env with your PostgreSQL host, port, database, user and password. Never paste credentials into the UI or commit them. Use an existing database or create a dedicated local database and account through your PostgreSQL administrator. The backend creates prediction_history if absent and adds source if absent; it never drops tables or clears rows. The configured account needs corresponding schema permissions. No PostgreSQL database or role was created during this repair.
+
+Start the backend in terminal 1 (8001 avoids the unrelated service found on port 8000):
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8001
+```
+
+Terminal 2, from the project folder:
+
+```powershell
 cd frontend-ui
-npm install
-npm run dev
+npm ci --ignore-scripts
+$env:VITE_API_BASE_URL='http://127.0.0.1:8001'
+npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Default API URL: `http://127.0.0.1:8000` (configurable through `VITE_API_BASE_URL`).
+Open http://127.0.0.1:5173. API docs are at http://127.0.0.1:8001/docs. Use one backend worker: replay and dataset jobs keep process-local state. If using another frontend port, include its exact origin in CORS_ORIGINS and restart the backend. Never put database secrets in VITE variables.
 
-## Security and maturity
-**Prototype, not production-grade network intrusion detection.** The current API does not implement user authentication, and CORS is permissive. The dashboard sends model feature vectors; real-time packet capture and production monitoring have not been verified. Model accuracy and dataset generalization should be reported only from reproducible tests. No source code was changed as part of this documentation update.
+## Verification
+
+```powershell
+python -m unittest discover -s backend/tests -v
+cd frontend-ui
+npm test
+npm run lint
+npm run build
+```
+
+Tests use isolated model/database doubles and temporary local CSV fixtures. They do not clear or write your real database. A passing isolated test does not establish original artifact or PostgreSQL compatibility.
+
+## Architecture and API
+
+```mermaid
+flowchart LR
+    A[Sample flow form] --> B[FastAPI strict validation]
+    R[Bounded offline test-flow replay] --> B
+    B --> C[Original Random Forest]
+    C --> D[PostgreSQL prediction_history]
+    D --> E[Paginated history and total counters]
+    F[Saved confusion matrix] --> G[Verified offline metrics]
+    C --> H[Global impurity importance]
+```
+
+See docs/SYSTEM.md for schema, endpoints, evaluation limits, demonstration and future scope; docs/AUDIT.md for prioritized findings; docs/FINAL_REPORT.md for actual verification and remaining blockers.
+
+The topology circles show backend counts for saved inputs/classified flows/database rows, the loaded model's feature count, and benign/attack totals. These are not packet-capture counters. Unavailable data displays a dash; a connected empty database displays zero. Compact circle values have exact totals in the text below.
+
+The active source is frontend-ui/src. frontend-ui/frontend-ui and backup scripts are preserved archival copies and should not be started.

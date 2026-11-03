@@ -1,4 +1,5 @@
-﻿import json
+import numpy as np
+import json
 import joblib
 import pandas as pd
 from pathlib import Path
@@ -11,7 +12,6 @@ X_PATH = ROOT / "ml/data/processed/split/X_test.csv"
 Y_PATH = ROOT / "ml/data/processed/split/y_test.csv"
 REPORT_PATH = ROOT / "ml/data/processed/evaluation_report.json"
 BATCH_SIZE = 20000
-
 
 def main():
     print("=" * 60)
@@ -53,7 +53,13 @@ def main():
     if y_df.shape[1] != 1:
         raise ValueError("Expected exactly one label column in y_test.csv")
 
+    if not np.isfinite(X.to_numpy(dtype=float)).all():
+        raise ValueError("Test features contain missing or nonfinite values")
+    if y_df.columns.tolist() != ["Label"]:
+        raise ValueError("Expected Label column")
     y = y_df.iloc[:, 0].to_numpy()
+    if not set(y.tolist()).issubset(id_to_name):
+        raise ValueError("Test labels absent from label mapping")
     predictions = []
 
     print(f"Test records: {len(X):,}")
@@ -65,8 +71,9 @@ def main():
         predictions.extend(batch.tolist())
         print(f"Processed {end:,}/{len(X):,} ({end / len(X) * 100:.1f}%)")
 
-    names = sorted(set(id_to_name.get(int(v), str(v)) for v in y) |
-                   set(id_to_name.get(int(v), str(v)) for v in predictions))
+    if not set(predictions).issubset(id_to_name):
+        raise ValueError("Predicted labels absent from label mapping")
+    names = [id_to_name[key] for key in sorted(id_to_name)]
     y_names = [id_to_name.get(int(v), str(v)) for v in y]
     pred_names = [id_to_name.get(int(v), str(v)) for v in predictions]
 
@@ -95,6 +102,7 @@ def main():
 
     output = {
         "test_records": int(len(y)),
+        "correct_predictions": sum(int(a == b) for a, b in zip(y, predictions)),
         "accuracy": float(accuracy),
         "accuracy_percent": float(accuracy * 100),
         "macro_f1": float(macro_f1),
@@ -108,7 +116,6 @@ def main():
 
     print(f"\nReport saved to: {REPORT_PATH}")
     print("Evaluation completed successfully.")
-
 
 if __name__ == "__main__":
     main()

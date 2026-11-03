@@ -5,7 +5,7 @@
  */
 
 const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+  import.meta.env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
 async function request(endpoint, options = {}) {
   const primaryUrl = `${API_BASE}${endpoint}`;
@@ -66,30 +66,15 @@ async function request(endpoint, options = {}) {
     }
   }
 
-  try {
-    return await performFetch(primaryUrl);
-  } catch (error) {
-    // Try the Vite proxy only for network-level failures.
-    if (!error.status) {
-      try {
-        return await performFetch(endpoint);
-      } catch {
-        // Preserve the original error below.
-      }
-    }
-
-    if (!error.status) {
-      error.status = 0;
-      error.message =
-        error.message ||
-        'Network error: Unable to reach FastAPI backend.';
-    }
-
-    throw error;
-  }
+  return performFetch(primaryUrl);
 }
 
 export const api = {
+  getModelInfo() { return request("/model-info"); },
+  getExplanation() { return request("/explain"); },
+  startReplay() { return request('/monitoring/start', { method: 'POST', body: JSON.stringify({limit: 20, interval_seconds: 1}) }); },
+  stopReplay() { return request('/monitoring/stop', { method: 'POST' }); },
+  getMonitoringStatus() { return request("/monitoring/status"); },
   getBaseUrl() {
     return API_BASE;
   },
@@ -102,13 +87,13 @@ export const api = {
     return request('/');
   },
 
-  async getHistory(limit = 20) {
+  async getHistory(limit = 20, params = {}) {
     const validLimit = Math.min(
       Math.max(Number(limit) || 20, 1),
       100
     );
 
-    return request(`/history?limit=${validLimit}`);
+    return request(`/history?${new URLSearchParams({ limit: validLimit, ...params })}`);
   },
 
   // Fetch actual model evaluation metrics from the backend.

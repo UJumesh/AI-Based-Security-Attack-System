@@ -82,6 +82,7 @@ export function AttackAnalytics({ history = [], setActiveTab }) {
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+      <p>Scope: the {history.length} most recent loaded prediction records. These charts do not represent the full database or dataset.</p>
       {/* Notice Card */}
       <div
         style={{

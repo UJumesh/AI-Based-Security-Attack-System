@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { topologyMetrics, displayCount } from '../data/topologyMetrics';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Play, Pause } from 'lucide-react';
 
-export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
+export function NetworkTopology({ height = 400, recentAttackCount = 0, summary = null, healthStatus = null }) {
+  const counters = useMemo(() => topologyMetrics(summary, healthStatus), [summary, healthStatus]);
   const canvasRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -27,25 +29,25 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
           x: w * 0.12,
           y: cy,
           color: '#2878FF',
-          status: 'ACTIVE',
+          status: 'ILLUSTRATION',
         },
         {
           id: 'extractor',
           label: 'Flow Feature Extractor',
-          sub: 'CIC-FlowMeter Parser',
+          sub: 'Collector not included',
           x: w * 0.32,
           y: cy - 40,
           color: '#06D6E0',
-          status: 'PARSING',
+          status: 'NOT CAPTURED',
         },
         {
           id: 'model',
           label: 'Random Forest AI Engine',
-          sub: '100 Decision Trees',
+          sub: 'Configured model',
           x: w * 0.53,
           y: cy,
           color: '#06D6E0',
-          status: 'OPTIMAL',
+          status: 'ILLUSTRATION',
           isCore: true,
         },
         {
@@ -55,12 +57,12 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
           x: w * 0.73,
           y: cy + 46,
           color: '#10B981',
-          status: 'CONNECTED',
+          status: 'ILLUSTRATION',
         },
         {
           id: 'workloads',
           label: 'Protected Workloads',
-          sub: 'Target Enterprise VPC',
+          sub: 'Conceptual destination',
           x: w * 0.88,
           y: cy - 54,
           color: '#10B981',
@@ -68,14 +70,15 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
         },
         {
           id: 'quarantine',
-          label: 'Quarantine & Mitigation',
+          label: 'Possible Future Mitigation',
           sub: 'Sinkhole / Drop Rule',
           x: w * 0.87,
           y: cy + 56,
           color: '#EF4444',
           status: 'ISOLATED',
         },
-      ];
+      ].map(node => ({...node, label: counters[node.id].label, sub: counters[node.id].unit,
+        status: counters[node.id].value == null ? "UNAVAILABLE" : "SAVED DATA"}));
     }
 
     let nodes = getNodes(width, h);
@@ -237,6 +240,14 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
         ctx.fill();
         ctx.shadowBlur = 0;
 
+        // Draw backend-sourced counts in the circle, with compact formatting for large totals.
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = `700 ${isCore ? 22 : 17}px "Space Grotesk", sans-serif`;
+        ctx.fillStyle = '#F8FAFC';
+        ctx.fillText(displayCount(counters[node.id].value), node.x, node.y, radius * 1.8);
+        ctx.textBaseline = 'alphabetic';
+
         // Label
         ctx.font = isCore ? '600 12px "Space Grotesk", sans-serif' : '500 11px Inter, sans-serif';
         ctx.fillStyle = '#F8FAFC';
@@ -270,7 +281,7 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [height, isPlaying, recentAttackCount]);
+  }, [height, isPlaying, recentAttackCount, counters]);
 
   return (
     <div
@@ -306,10 +317,10 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
           />
           <div>
             <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#F8FAFC' }}>
-              Real-Time Security Architecture Topology
+              Prediction Data Pipeline
             </h3>
             <span style={{ fontSize: '11px', color: '#94A3B8' }}>
-              Interactive flow routing: Traffic Ingress → 70-Feature Parser → Random Forest Classifier → Quarantine / Protected VPC
+              Counters show saved flows, model feature count, and benign/attack classifications
             </span>
           </div>
         </div>
@@ -326,7 +337,7 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
               borderRadius: '4px',
             }}
           >
-            ACTIVE SENSORS: 6
+            BACKEND COUNTERS
           </span>
           <button
             onClick={() => setIsPlaying(!isPlaying)}
@@ -350,8 +361,9 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
         </div>
       </div>
 
+      <p style={{padding: 12}}>Circle values come from the backend. — means unavailable. Animation is illustrative; no packet capture or blocking is performed.</p>
       <div style={{ position: 'relative', width: '100%', height: `${height}px` }}>
-        <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
+        <canvas role="img" aria-label={Object.values(counters).map(item => `${item.label}: ${item.value ?? "unavailable"} ${item.unit}`).join("; ")} ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
 
         {/* Dynamic Legend */}
         <div
@@ -390,9 +402,12 @@ export function NetworkTopology({ height = 400, recentAttackCount = 0 }) {
           </div>
 
           <span style={{ color: '#64748B', fontFamily: 'var(--font-mono)' }}>
-            ENGINE: SKLEARN RANDOM FOREST (100 TREES)
+            MODEL ARCHITECTURE ILLUSTRATION
           </span>
         </div>
+      </div>
+      <div style={{display:'flex', flexWrap:'wrap', gap:16, padding:16, fontSize:12}}>
+        {Object.entries(counters).map(([key, item]) => <span key={key}>{item.label}: <strong>{item.value == null ? 'Unavailable' : item.value.toLocaleString()}</strong></span>)}
       </div>
     </div>
   );

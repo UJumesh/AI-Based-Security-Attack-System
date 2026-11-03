@@ -1,0 +1,30 @@
+
+> frontend-ui@0.0.0 test
+> node --test tests/*.test.js
+
+✔ history propagates server pagination and filters (31.4138ms)
+✔ history bounds requested page size (0.6862ms)
+✔ prediction sends actual values as JSON (1.8303ms)
+✔ database failure is visible to callers (0.8703ms)
+✔ validation error preserves structured details (0.4697ms)
+✔ failed mutation is never retried against another server (0.2431ms)
+✔ explanation calls the implemented endpoint (0.3319ms)
+✔ replay sends bounded configuration (0.3876ms)
+✔ circle counters use all database rows rather than the loaded history page (16.064ms)
+✔ missing services show unavailable instead of invented zeroes (0.257ms)
+✔ a connected empty database displays actual zeroes (27.7027ms)
+✔ invalid count inputs cannot become misleading counters (0.1827ms)
+✔ large counts fit inside the circle and missing values stay explicit (0.2361ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 157.1171
+npm notice
+npm notice New major version of npm available! 11.19.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

@@ -142,7 +142,7 @@ export function SystemStatus({ healthStatus, onRefresh, isRefreshing, error, add
               </span>
             </div>
             <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#F8FAFC', marginTop: '2px' }}>
-              FastAPI Intelligence Service (v1.2.0)
+              FastAPI Intelligence Service ({healthStatus?.api_version || "version unavailable"})
             </h2>
             <span style={{ fontSize: '12px', color: '#CBD5E1', fontFamily: 'var(--font-mono)' }}>
               Connected to: {baseUrl}
@@ -231,7 +231,7 @@ export function SystemStatus({ healthStatus, onRefresh, isRefreshing, error, add
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#64748B' }}>Expected Features:</span>
               <span style={{ fontFamily: 'var(--font-mono)', color: '#06D6E0' }}>
-                {healthStatus?.expected_features ?? 70} Features
+                {healthStatus?.model_loaded ? healthStatus.expected_features : "Unavailable"} Features
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -320,11 +320,11 @@ export function SystemStatus({ healthStatus, onRefresh, isRefreshing, error, add
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#64748B' }}>ID Coverage:</span>
-              <span style={{ fontFamily: 'var(--font-mono)' }}>IDs 0 to 14 mapped</span>
+              <span style={{ fontFamily: 'var(--font-mono)' }}>{healthStatus?.label_mapping_loaded ? `${healthStatus.known_classes} mapped classes` : "Unavailable"}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#64748B' }}>Benign Class ID:</span>
-              <span style={{ fontFamily: 'var(--font-mono)', color: '#10B981' }}>Class 0 (BENIGN)</span>
+              <span style={{ fontFamily: 'var(--font-mono)', color: '#10B981' }}>{Object.entries(healthStatus?.class_labels || {}).find(([, label]) => label.toUpperCase() === "BENIGN")?.[0] ?? "Unavailable"}</span>
             </div>
           </div>
         </div>
@@ -428,7 +428,7 @@ export function SystemStatus({ healthStatus, onRefresh, isRefreshing, error, add
                         color: ep.status === 200 ? '#10B981' : '#EF4444',
                       }}
                     >
-                      {ep.status ? `HTTP ${ep.status}` : 'UNREACHABLE'}
+                      {ep.path === '/health' && healthStatus?.status !== 'offline' ? 'Health checked' : 'Not probed'}
                     </span>
                   </td>
                 </tr>

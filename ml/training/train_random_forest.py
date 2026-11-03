@@ -27,8 +27,9 @@ REPORT_PATH = os.path.join(MODEL_DIR, "evaluation_report.txt")
 MAX_PER_CLASS = 20_000
 RANDOM_STATE = 42
 
-
 def main():
+    if os.path.exists(MODEL_PATH):
+        raise FileExistsError("Primary model already exists. Preserve it and select a new output path before approved retraining.")
     start_time = time.time()
 
     print("=" * 65)
@@ -181,7 +182,6 @@ def main():
     print(f"Model saved : {MODEL_PATH}")
     print(f"Report saved: {REPORT_PATH}")
     print(f"Elapsed time: {elapsed / 60:.2f} minutes")
-
 
 if __name__ == "__main__":
     main()
