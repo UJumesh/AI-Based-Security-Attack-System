@@ -88,16 +88,14 @@ Tests use isolated model/database doubles and temporary local CSV fixtures. They
 
 ## Architecture and API
 
-```mermaid
-flowchart LR
-    A[Sample flow form] --> B[FastAPI strict validation]
-    R[Bounded offline test-flow replay] --> B
-    B --> C[Original Random Forest]
-    C --> D[PostgreSQL prediction_history]
-    D --> E[Paginated history and total counters]
-    F[Saved confusion matrix] --> G[Verified offline metrics]
-    C --> H[Global impurity importance]
-```
+| Stage | What happens |
+| --- | --- |
+| Input | A sample flow from the form or a bounded offline test-flow replay is sent to the API. |
+| Validation | FastAPI validates the flow before processing it. |
+| Prediction | The original Random Forest classifies the validated flow. |
+| Storage and history | Predictions are saved to PostgreSQL `prediction_history` and exposed through paginated history and total counters. |
+| Evaluation | Verified offline metrics are calculated from the saved confusion matrix. |
+| Explainability | Global impurity feature importance is provided by the model. |
 
 See docs/SYSTEM.md for schema, endpoints, evaluation limits, demonstration and future scope; docs/AUDIT.md for prioritized findings; docs/FINAL_REPORT.md for actual verification and remaining blockers.
 
